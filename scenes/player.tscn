@@ -1,0 +1,106 @@
+[gd_scene load_steps=17 format=3 uid="uid://c7t7jojm6nbaq"]
+
+[ext_resource type="Script" uid="uid://dlm65h32m8j0o" path="res://scripts/player.gd" id="1_onrkg"]
+[ext_resource type="Texture2D" uid="uid://c6iwheobjfbg1" path="res://art/player.png" id="2_g2els"]
+[ext_resource type="PackedScene" uid="uid://ci7exktud2ixf" path="res://scenes/blood_particles.tscn" id="3_dqkch"]
+[ext_resource type="Texture2D" uid="uid://dqcyhm2anr6fq" path="res://art/bubble.png" id="3_qhqgy"]
+[ext_resource type="AudioStream" uid="uid://bamhxkrdsjixb" path="res://audio/bubble_sfx.ogg" id="5_qlg0r"]
+[ext_resource type="AudioStream" uid="uid://dy5d1dr8h62r4" path="res://audio/lose_sfx.ogg" id="6_tuyoq"]
+[ext_resource type="AudioStream" uid="uid://ba1dgkvq8uh4d" path="res://audio/player_hurt_sfx.ogg" id="7_fjrip"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2els"]
+atlas = ExtResource("2_g2els")
+region = Rect2(0, 0, 14, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qhqgy"]
+atlas = ExtResource("2_g2els")
+region = Rect2(14, 0, 14, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dqkch"]
+atlas = ExtResource("2_g2els")
+region = Rect2(28, 0, 14, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qlg0r"]
+atlas = ExtResource("2_g2els")
+region = Rect2(42, 0, 14, 20)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tuyoq"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2els")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qhqgy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dqkch")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qlg0r")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hqtel"]
+radius = 5.0
+height = 20.0
+
+[sub_resource type="Curve" id="Curve_dqkch"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_qlg0r"]
+curve = SubResource("Curve_dqkch")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_tuyoq"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 5.0
+angle_min = -720.0
+angle_max = 720.0
+gravity = Vector3(0, -98, 0)
+scale_min = 0.25
+scale_curve = SubResource("CurveTexture_qlg0r")
+
+[node name="Player" type="CharacterBody2D"]
+z_index = 1
+collision_mask = 4
+script = ExtResource("1_onrkg")
+SPEED = 150
+ACCELERATION = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_tuyoq")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_hqtel")
+
+[node name="Timer" type="Timer" parent="."]
+autostart = true
+
+[node name="BloodParticles" parent="." instance=ExtResource("3_dqkch")]
+
+[node name="BubblesParticles" type="GPUParticles2D" parent="."]
+position = Vector2(0, -10)
+texture = ExtResource("3_qhqgy")
+lifetime = 5.0
+randomness = 0.5
+process_material = SubResource("ParticleProcessMaterial_tuyoq")
+
+[node name="O2SFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_qlg0r")
+volume_db = 10.0
+
+[node name="LoseSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_tuyoq")
+
+[node name="HurtSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_fjrip")
+volume_db = 10.0
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

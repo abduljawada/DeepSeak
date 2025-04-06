@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://c0l1g7mqcvh4p"]
+
+[ext_resource type="Script" uid="uid://bvcv0nad52lot" path="res://scripts/projectile.gd" id="1_q3m7n"]
+[ext_resource type="Texture2D" uid="uid://daepgw74dccr4" path="res://art/spear.png" id="2_softn"]
+[ext_resource type="AudioStream" uid="uid://d1w3vn7w8sw1w" path="res://audio/spear_hit_sfx.ogg" id="3_softn"]
+[ext_resource type="AudioStream" uid="uid://dxpmphsjrmef1" path="res://audio/spear_sfx.ogg" id="4_6q2a6"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6q2a6"]
+radius = 1.0
+height = 14.0
+
+[node name="Projectile" type="Area2D"]
+collision_layer = 8
+collision_mask = 15
+script = ExtResource("1_q3m7n")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_softn")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+autostart = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_6q2a6")
+
+[node name="HitSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_softn")
+
+[node name="SpearSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_6q2a6")
+autoplay = true
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="finished" from="HitSFX" to="." method="_on_hit_sfx_finished"]

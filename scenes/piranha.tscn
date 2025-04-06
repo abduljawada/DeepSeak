@@ -1,0 +1,119 @@
+[gd_scene load_steps=16 format=3 uid="uid://f05bcky0u4lw"]
+
+[ext_resource type="Script" uid="uid://d11exd85yw6e4" path="res://scripts/piranha.gd" id="1_u1xbf"]
+[ext_resource type="Texture2D" uid="uid://baoc1mmn62umd" path="res://art/piranha.png" id="2_2xr4y"]
+[ext_resource type="PackedScene" uid="uid://ci7exktud2ixf" path="res://scenes/blood_particles.tscn" id="3_clyk4"]
+[ext_resource type="AudioStream" uid="uid://dhu5wk74oo1o3" path="res://audio/piranha_charge_sfx.ogg" id="4_j63f2"]
+[ext_resource type="AudioStream" uid="uid://b75oirfroopn3" path="res://audio/fish_hurt_sfx.ogg" id="5_5dtlv"]
+[ext_resource type="AudioStream" uid="uid://cbbpkej6ox5oh" path="res://audio/fish_death_sfx.ogg" id="6_8c083"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_clyk4"]
+atlas = ExtResource("2_2xr4y")
+region = Rect2(76, 0, 19, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j63f2"]
+atlas = ExtResource("2_2xr4y")
+region = Rect2(0, 0, 19, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tb8k7"]
+atlas = ExtResource("2_2xr4y")
+region = Rect2(19, 0, 19, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5dtlv"]
+atlas = ExtResource("2_2xr4y")
+region = Rect2(38, 0, 19, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8c083"]
+atlas = ExtResource("2_2xr4y")
+region = Rect2(57, 0, 19, 9)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jyp1e"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_clyk4")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j63f2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tb8k7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5dtlv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8c083")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0vjgv"]
+radius = 5.0
+height = 16.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vtgog"]
+radius = 3.5
+height = 18.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xsx6p"]
+size = Vector2(18, 32)
+
+[node name="Piranha" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_u1xbf")
+SPEED = 150
+CHARGE_SPEED = 300
+ACCELERATION = 10
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_jyp1e")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_0vjgv")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_vtgog")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="WallCheckY" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallCheckY"]
+shape = SubResource("RectangleShape2D_xsx6p")
+
+[node name="BloodParticles" parent="." instance=ExtResource("3_clyk4")]
+
+[node name="ChargeSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_j63f2")
+
+[node name="HurtSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_5dtlv")
+
+[node name="DeathSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_8c083")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="body_entered" from="WallCheckY" to="." method="_on_wall_check_y_body_entered"]
+[connection signal="finished" from="BloodParticles" to="." method="_on_blood_particles_finished"]

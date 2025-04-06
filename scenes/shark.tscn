@@ -1,0 +1,109 @@
+[gd_scene load_steps=15 format=3 uid="uid://5vnc2xg52xqo"]
+
+[ext_resource type="Script" uid="uid://dcnfhnjskmr7o" path="res://scripts/shark.gd" id="1_v5iaq"]
+[ext_resource type="Texture2D" uid="uid://btnpo8gnmso2j" path="res://art/shark.png" id="2_po4rd"]
+[ext_resource type="PackedScene" uid="uid://ci7exktud2ixf" path="res://scenes/blood_particles.tscn" id="3_po4rd"]
+[ext_resource type="AudioStream" uid="uid://cgltv7cu88lsx" path="res://audio/shark_charge_sfx.ogg" id="4_inbs7"]
+[ext_resource type="AudioStream" uid="uid://touh2mnrg30k" path="res://audio/shark_hurt_sfx.ogg" id="5_4m6ut"]
+[ext_resource type="AudioStream" uid="uid://bgd3tucy86q0o" path="res://audio/shark_death_sfx.ogg" id="6_gx357"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_inbs7"]
+atlas = ExtResource("2_po4rd")
+region = Rect2(208, 0, 52, 28)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f40hg"]
+atlas = ExtResource("2_po4rd")
+region = Rect2(0, 0, 52, 28)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4m6ut"]
+atlas = ExtResource("2_po4rd")
+region = Rect2(52, 0, 52, 28)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gx357"]
+atlas = ExtResource("2_po4rd")
+region = Rect2(104, 0, 52, 28)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kbhwa"]
+atlas = ExtResource("2_po4rd")
+region = Rect2(156, 0, 52, 28)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_q38ne"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_inbs7")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f40hg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4m6ut")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gx357")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kbhwa")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0vjgv"]
+radius = 7.0
+height = 50.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vtgog"]
+radius = 8.0
+height = 52.0
+
+[node name="Shark" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_v5iaq")
+SPEED = 150
+ACCELERATION = 10
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_q38ne")
+animation = &"idle"
+autoplay = "idle"
+flip_h = true
+flip_v = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_0vjgv")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_vtgog")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="BloodParticles" parent="." instance=ExtResource("3_po4rd")]
+
+[node name="ChargeSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_inbs7")
+
+[node name="HurtSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_4m6ut")
+
+[node name="DeathSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_gx357")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="finished" from="BloodParticles" to="." method="_on_blood_particles_finished"]

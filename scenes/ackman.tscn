@@ -1,0 +1,103 @@
+[gd_scene load_steps=14 format=3 uid="uid://gjkri8hv3ux1"]
+
+[ext_resource type="Script" uid="uid://be2skjxfmex53" path="res://scripts/ackman.gd" id="1_ouoxy"]
+[ext_resource type="Texture2D" uid="uid://c7kssu18sv07s" path="res://art/ackman.png" id="2_es5r8"]
+[ext_resource type="PackedScene" uid="uid://ci7exktud2ixf" path="res://scenes/blood_particles.tscn" id="3_4a3jy"]
+[ext_resource type="AudioStream" uid="uid://bwvh6pe3p5k5y" path="res://audio/ackman_death_sfx.ogg" id="4_pf010"]
+[ext_resource type="AudioStream" uid="uid://nf2xe5qhi7yt" path="res://audio/ackman_hur_sfx.ogg" id="5_mrqix"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hqtel"]
+radius = 5.0
+height = 20.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4a3jy"]
+atlas = ExtResource("2_es5r8")
+region = Rect2(0, 0, 14, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xj54w"]
+atlas = ExtResource("2_es5r8")
+region = Rect2(14, 0, 14, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pf010"]
+atlas = ExtResource("2_es5r8")
+region = Rect2(28, 0, 14, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mrqix"]
+atlas = ExtResource("2_es5r8")
+region = Rect2(42, 0, 14, 20)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mwx0g"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4a3jy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xj54w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pf010")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mrqix")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_es5r8"]
+radius = 3.0
+height = 14.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u1xbf"]
+size = Vector2(10, 34)
+
+[node name="Ackman" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_ouoxy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_hqtel")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_mwx0g")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CapsuleShape2D_es5r8")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="CooldownTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="WallCheckY" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallCheckY"]
+shape = SubResource("RectangleShape2D_u1xbf")
+
+[node name="BloodParticles" parent="." instance=ExtResource("3_4a3jy")]
+
+[node name="DeathSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_pf010")
+
+[node name="HurtSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_mrqix")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="timeout" from="CooldownTimer" to="." method="_on_cooldown_timer_timeout"]
+[connection signal="body_entered" from="WallCheckY" to="." method="_on_wall_check_y_body_entered"]
+[connection signal="finished" from="BloodParticles" to="." method="_on_blood_particles_finished"]
+[connection signal="finished" from="DeathSFX" to="." method="_on_death_sfx_finished"]

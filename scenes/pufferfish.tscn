@@ -1,0 +1,46 @@
+[gd_scene load_steps=7 format=3 uid="uid://lchtsgvy7hld"]
+
+[ext_resource type="Script" uid="uid://dr1ptnqjp80jo" path="res://scripts/pufferfish.gd" id="1_ry8r6"]
+[ext_resource type="Texture2D" uid="uid://c1kwqn6r8qxm7" path="res://art/pufferfish.png" id="1_vqe7j"]
+[ext_resource type="PackedScene" uid="uid://ci7exktud2ixf" path="res://scenes/blood_particles.tscn" id="3_kn2uh"]
+[ext_resource type="AudioStream" uid="uid://cbbpkej6ox5oh" path="res://audio/fish_death_sfx.ogg" id="4_r0q7b"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ry8r6"]
+radius = 6.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kn2uh"]
+radius = 7.0
+
+[node name="Pufferfish" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_ry8r6")
+SPEED = 10
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_vqe7j")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("CircleShape2D_ry8r6")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+rotation = 1.5708
+shape = SubResource("CircleShape2D_kn2uh")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="BloodParticles" parent="." instance=ExtResource("3_kn2uh")]
+
+[node name="DeathSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_r0q7b")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="finished" from="BloodParticles" to="." method="_on_blood_particles_finished"]
